@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize');
-
 const instanciadb = require('../db')
 
 const columns = {

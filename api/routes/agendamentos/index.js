@@ -7,7 +7,7 @@ router.get('/agendamentos',async (req, resp) =>{
     resp.send(JSON.stringify(results));
 });
 
-router.post('agendamentos', async(req, resp)=>{
+router.post('/agendamentos', async(req, resp)=>{
     const reqAgendamento = req.body;
     const agendamento = new Agendamento(reqAgendamento);
     await agendamento.criar()
