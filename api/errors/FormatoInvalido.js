@@ -1,10 +1,9 @@
 class FormatoInvalido extends Error {
-    constructor(contentType) {
-        const mensagem = `O tipo ${contentType} é inválido! A API aceita somente JSON`
-        super(mensagem);
-        this.name = 'FormatoInvalido';
-        this.idError = 6;
+    constructor(contentType){
+        super(`O tipo ${contentType} é inválido! A api suporta somente JSON`); 
+        this.name = 'FOrmatoInvalido';
+        this.idErro = 3;
     };
 };
 
-module.exports = FormatoInvalido;
+module.exports = FormatoInvalido

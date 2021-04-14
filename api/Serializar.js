@@ -1,26 +1,49 @@
 const FormatoInvalido = require('./errors/FormatoInvalido');
+const jsontoxml = require('jsontoxml');
 
 class Serializar {
     json(dados) {
-        return JSON.stringify(dados)
+        return JSON.stringify(dados);
+    };
+
+    xml(dados) {
+        if(Array.isArray(dados)){
+            dados = dados.map((item) => {
+                return {
+                    [this.tag]: item
+                }
+            });
+            this.tag = this.tagList;
+        }
+        return jsontoxml({
+                [this.tag]: dados}
+            );
     };
 
     transformar(dados) {
-        if(this.contentType !== 'application/json') {
-            throw new FormatoInvalido(this.contentType);
-        }
+        dados = this.filtrar(dados);
+        if (this.contentType === 'application/json') {
+            return this.json(
+                dados
+            );
+        };
+        
+        if (this.contentType === 'application/xml') {
+            return this.xml(
+                dados
+            );
+        };
+        
 
-        return this.json(
-            this.filtrar(dados)
-        );
+        throw new FormatoInvalido(this.contentType);
     };
 
     filtrarCampos(dados) {
-        const camposFiltrados = {};
+        const camposFiltrados = {}
         this.camposPermitidos.forEach((campo) => {
-            if(dados.hasOwnProperty(campo)) {
+            if (dados.hasOwnProperty(campo)) {
                 camposFiltrados[campo] = dados[campo];
-            }
+            };
         });
 
         return camposFiltrados;
@@ -31,26 +54,54 @@ class Serializar {
 
         if(Array.isArray(dados)) {
             dadosFiltrados = dados.map((dado) => {
-                return this.filtrarCampos(dado);
+                return this.filtrarCampos(dado)
             });
-        }
+        };
 
         return dadosFiltrados;
-    }
+    };
 }
 
+class SerializarErro extends Serializar {
+    constructor(contentType, camposPersonalidados){
+        super();
+        this.contentType = contentType;
+        this.camposPermitidos = [
+            'id', 'mensagem'
+        ].concat(camposPersonalidados || []);
+        this.tag = 'Error';
+        this.tagList = 'Errors'
+    };
+};
+
 class SerializarAgendamento extends Serializar {
-    constructor(contentType, camposPersonalizados) {
-        super()
+    constructor(contentType, camposPersonalidados){
+        super();
         this.contentType = contentType;
         this.camposPermitidos = [
             'id', 'nome_cliente', 'data_agendamento'
-        ].concat(camposPersonalizados || []);
-    }
-}
+        ].concat(camposPersonalidados || []);
+        this.tag = 'Agendamento';
+        this.tagList = 'Agendamentos';
+    };
+};
+
+class SerializarUsuario extends Serializar {
+    constructor(contentType, camposPersonalidados){
+        super();
+        this.contentType = contentType;
+        this.camposPermitidos = [
+            'id', 'nome', 'email', 'senha'
+        ].concat(camposPersonalidados || []);
+        this.tag = 'Usuario';
+        this.tagList = 'Usuarios';
+    };
+};
 
 module.exports = {
     Serializar: Serializar,
     SerializarAgendamento: SerializarAgendamento,
-    FormatosValidos: ['application/json']
+    SerializarErro: SerializarErro,
+    SerializarUsuario: SerializarUsuario,
+    FormatosValidos: ['application/json', 'application/xml']
 }

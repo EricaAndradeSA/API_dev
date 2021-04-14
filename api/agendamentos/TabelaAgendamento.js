@@ -1,57 +1,45 @@
-const modeloAgendamento = require('./modelTabelaAgendamentos')
+const modeloAgendamento = require('./modelTabelaAgendamento');
+const NaoEncontrado = require( '../errors/NaoEncontrado');
 
 module.exports = {
-    async listar(){
-        try{
-            return await modeloAgendamento.findAll({
+    async listar() {
+        return await modeloAgendamento.findAll({
             raw: true,
         });
-
-    }catch(error){
-        throw error
-        }
     },
 
-    async adicionar(agendamento){
-        try{
-            return await modeloAgendamento.create(agendamento);
-        } catch(error){
-            throw error
-        }
-        
+    async adicionar(agendamento) {
+        return await modeloAgendamento.create(agendamento);
     },
 
-    async buscarPorPK(id){
-        try{
-            return await modeloAgendamento.findByPk(id);
-        } catch(error){
-            throw error
+    async buscarPorPK(id) {
+        agendamento = await modeloAgendamento.findByPk(id)
+
+        if(!agendamento) {
+            throw new NaoEncontrado;
         };
+
+        return agendamento
     },
 
-    async remover(id){
-        try{
-            return await modeloAgendamento.destroy({
-                where:{
-                    id:id
+    async atualizar(id, dados) {
+        return await modeloAgendamento.update(
+            dados,
+            {
+                where: {
+                    id: id
                 }
-            });
-        } catch (error){
-            throw error
-        }
-            
+            }
+        );
     },
 
-    async atualizar (id, dados){
-        try{
-            return await modeloAgendamento.update(dados,
-                {
-                    where:{
-                        id:id
-                    }
-                })
-            }catch(error){
-                throw error
+    async remover(id) {
+        return await modeloAgendamento.destroy(
+            {
+                where: {
+                    id: id
+                }
             }
-        }
+        );
     }
+};
